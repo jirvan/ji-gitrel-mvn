@@ -1,0 +1,66 @@
+#!/bin/bash
+#     ji-gitrel-mvn-1.0.0.js - grel
+#
+#     Copyright (c) 2014,2015 Jirvan Pty Ltd
+#     All rights reserved.
+#
+#     Redistribution and use in source and binary forms, with or without modification,
+#     are permitted provided that the following conditions are met:
+#
+#     * Redistributions of source code must retain the above copyright notice,
+#     this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright notice,
+#     this list of conditions and the following disclaimer in the documentation
+#     and/or other materials provided with the distribution.
+#     * Neither the name of Jirvan Pty Ltd nor the names of its contributors
+#     may be used to endorse or promote products derived from this software
+#     without specific prior written permission.
+#
+#     THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+#     ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+#     WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+#     DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+#     ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+#     (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+#     LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+#     ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+#     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+source gitrellib.sh
+
+verifyNoUncommittedChanges
+verifyNoUnpushedCommits
+verifyHeadIsNotDetached
+ORIG_BRANCH=`git branch| grep '^\* '|sed 's/\* //'`
+
+# Get the candidate and release versions
+chooseReleaseCandidateVersion
+RELEASE_VERSION=`echo $RELEASE_CANDIDATE_VERSION | sed 's/_rc[0-9][0-9]*$//'`
+
+verifyTagDoesNotExist "v$RELEASE_VERSION"
+
+confimBeforeProceeding "   Do you wish to create release $RELEASE_VERSION from release candidate $RELEASE_CANDIDATE_VERSION (y/n) ?"
+
+# Create a POM version modified and tagged version on a temp branch then return to original branch
+TEMP_BRANCH="v$RELEASE_VERSION""_tmpBranch"
+checkout "v$RELEASE_CANDIDATE_VERSION"
+checkoutOnANewBranch $TEMP_BRANCH
+updatePomfileVersions $RELEASE_VERSION
+addAllModificationsAndCommitWithMessage "v"$RELEASE_VERSION
+tagAndPushTagToOrigin v$RELEASE_VERSION
+checkout $ORIG_BRANCH
+deleteBranch $TEMP_BRANCH
+
+# Archive redundant release candidate tags
+archiveRedundantReleaseCandidateTags $RELEASE_VERSION
+
+# Update POM version to snapshot version after confirmation
+MINOR_RELEASE=`echo $RELEASE_VERSION|sed 's/.*\.//'`
+NEXT_SNAPSHOT_VERSION=`echo $RELEASE_VERSION|sed 's/[^.]*$//'`$(($MINOR_RELEASE + 1))-SNAPSHOT
+confimBeforeProceeding "   Do you wish to update the POM version to $NEXT_SNAPSHOT_VERSION on the $ORIG_BRANCH branch (y/n) ?"
+updatePomfileVersions $NEXT_SNAPSHOT_VERSION
+addAllModificationsAndCommitWithMessage "Updating poms for $NEXT_SNAPSHOT_VERSION development"
+git push -q --set-upstream origin $ORIG_BRANCH
+
+echo

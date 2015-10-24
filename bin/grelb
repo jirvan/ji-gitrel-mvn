@@ -62,6 +62,37 @@ while true; do
     fi
 done
 
+# Get the version direction
+versionDirection[0]="Serial (i.e. 1.1.1 -> 1.1.2)"
+versionDirection[1]="Child  (i.e. 1.1.1 -> 1.1.1.1)"
+versionDirection[3]="asdfsdfa.1)"
+echo
+echo "   Please choose a \"direction\" for the new version"
+echo
+chooseFromNumberedChoices versionDirection[@]
+
+echo "Chose "$chooseFromNumberedChoices_returnValue
+echo
+exit 0
+
+#choice=""
+#while true; do
+#    echo
+#    if [ "$choice" != "" ]
+#    then
+#        read -p "   Choose a number [$choice] ? " value
+#    else
+#        read -p "   Choose a number ? " value
+#    fi
+#    if [ "$value" != "" ]
+#    then
+#        choice="$value"
+#        break
+#    else
+#        echo "   Please enter the number of the item to choose"
+#    fi
+#done
+
 # Get the branch name
 BRANCH_NAME=""
 while true; do

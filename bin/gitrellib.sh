@@ -435,6 +435,44 @@ function chooseReleaseCandidateVersion {
 
 }
 
+function chooseFromNumberedChoices {
+
+    local choices=$1
+
+    for i in `seq 0 $((${#choices[@]} - 1))`;
+    do
+        printf "  %3d:  %s\n" $(($i + 1)) ${choices[$i]}
+    done
+
+    local CHOICE=""
+    while true; do
+        echo
+        if [ "$CHOICE" != "" ]
+        then
+            read -p "   Choose a number [$CHOICE] ? " value
+        else
+            read -p "   Choose a number ? " value
+        fi
+        if [ "$value" != "" ]
+        then
+            let numberChoice=0+$value
+            if [ $numberChoice -lt 1 ] || [ $numberChoice -gt ${#choices[@]} ]
+            then
+                echo "   $value is not a valid choice, please re-enter"
+            else
+                local CHOICE="$numberChoice"
+                break
+            fi
+        else
+            echo "   Please enter the number of the item to choose"
+        fi
+    done
+
+    chooseFromNumberedChoices_returnValue=$(($CHOICE - 1))
+echo "Chose "$chooseFromNumberedChoices_returnValue
+
+}
+
 function archiveRedundantReleaseCandidateTags {
 
     local RELEASE_VERSION="$1"

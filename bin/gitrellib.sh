@@ -362,6 +362,23 @@ function printNextBranchVersionFor {
 
 }
 
+function printSerialVersion {
+
+    local LAST_VERSION=$1
+    if [ "$LAST_VERSION" != "" ]
+    then
+        local MINOR_RELEASE=`echo $LAST_VERSION|sed 's/.*\.//'`
+        local NEXT_VERSION=`echo $LAST_VERSION|sed 's/[^.]*$//'`$(($MINOR_RELEASE + 1))
+        echo $NEXT_VERSION
+    else
+        echo
+        echo ERROR: Parameter 1 for printSerialVersion must not be ""
+        echo
+        exit 1
+    fi
+
+}
+
 function verifyIsNextVersion {
 
     local _NEXT_VERSION=`printNextVersion`
@@ -432,44 +449,6 @@ function chooseReleaseCandidateVersion {
     done
 
     RELEASE_CANDIDATE_VERSION=${candidates[$(($CHOICE - 1))]}
-
-}
-
-function chooseFromNumberedChoices {
-
-    local choices=$1
-
-    for i in `seq 0 $((${#choices[@]} - 1))`;
-    do
-        printf "  %3d:  %s\n" $(($i + 1)) ${choices[$i]}
-    done
-
-    local CHOICE=""
-    while true; do
-        echo
-        if [ "$CHOICE" != "" ]
-        then
-            read -p "   Choose a number [$CHOICE] ? " value
-        else
-            read -p "   Choose a number ? " value
-        fi
-        if [ "$value" != "" ]
-        then
-            let numberChoice=0+$value
-            if [ $numberChoice -lt 1 ] || [ $numberChoice -gt ${#choices[@]} ]
-            then
-                echo "   $value is not a valid choice, please re-enter"
-            else
-                local CHOICE="$numberChoice"
-                break
-            fi
-        else
-            echo "   Please enter the number of the item to choose"
-        fi
-    done
-
-    chooseFromNumberedChoices_returnValue=$(($CHOICE - 1))
-echo "Chose "$chooseFromNumberedChoices_returnValue
 
 }
 

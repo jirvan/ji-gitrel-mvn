@@ -1,4 +1,4 @@
-#     ji-gitrel-mvn-1.0.1 - gitrellib.sh
+#     ji-gitrel-mvn-1.0.2 - gitrellib.sh
 #
 #     Copyright (c) 2014,2015 Jirvan Pty Ltd
 #     All rights reserved.

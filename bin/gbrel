@@ -1,5 +1,5 @@
 #!/bin/bash
-#     ji-gitrel-mvn-1.0.1 - gbrel
+#     ji-gitrel-mvn-1.0.2 - gbrel
 #
 #     Copyright (c) 2014,2015 Jirvan Pty Ltd
 #     All rights reserved.
@@ -55,6 +55,7 @@ updatePomfileVersions $BUILD_RELEASE_VERSION
 addAllModificationsAndCommitWithMessage "v"$BUILD_RELEASE_VERSION
 tagAndPushTagToOrigin v$BUILD_RELEASE_VERSION
 checkout $ORIG_BRANCH
+tagAndPushTagToOrigin "v$BUILD_RELEASE_VERSION"_created
 deleteBranch $TEMP_BRANCH
 
 echo

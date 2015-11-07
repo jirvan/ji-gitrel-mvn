@@ -1,4 +1,4 @@
-#     ji-gitrel-mvn-1.0.0.js - gitrellib.sh
+#     ji-gitrel-mvn-1.0.1 - gitrellib.sh
 #
 #     Copyright (c) 2014,2015 Jirvan Pty Ltd
 #     All rights reserved.
@@ -274,6 +274,14 @@ function deleteBranch {
 }
 
 function updatePomfileVersions {
+
+    if [ "$1" = "" ]
+    then
+        echo
+        echo "ERROR: version must be provided"
+        echo
+        exit 1
+    fi
 
     echo "  - Setting POM file version to $1"
     if ! mvn versions:set -q -DgenerateBackupPoms=false -DnewVersion=$1 >/dev/null

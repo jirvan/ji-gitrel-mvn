@@ -1,5 +1,5 @@
 #!/bin/bash
-#     ji-gitrel-mvn-1.0.1 - grel
+#     ji-gitrel-mvn-1.0.1 - gbrel
 #
 #     Copyright (c) 2014,2015 Jirvan Pty Ltd
 #     All rights reserved.
@@ -32,35 +32,29 @@ source gitrellib.sh
 verifyNoUncommittedChanges
 verifyNoUnpushedCommits
 verifyHeadIsNotDetached
+
+# Extract release version etc and confirm before proceeding
 ORIG_BRANCH=`git branch| grep '^\* '|sed 's/\* //'`
+RELEASE_VERSION=`mvn blah|egrep '^\[INFO\] Building .+ [0-9]+\.[0-9]+\.[0-9]+-SNAPSHOT$'|sed 's/\[INFO\] Building .* //'|sed 's/-SNAPSHOT$//'`
+if [ "$ORIG_BRANCH" = "dev" ]
+then
+    EFFECTIVE_BUILD_NUMBER="_"`date +%Y-%m-%d_%H%M`
+else
+    EFFECTIVE_BUILD_NUMBER=-$ORIG_BRANCH"_"`date +%Y-%m-%d_%H%M`
+fi
+BUILD_RELEASE_VERSION=$RELEASE_VERSION-build$EFFECTIVE_BUILD_NUMBER
 
-# Get the candidate and release versions
-chooseReleaseCandidateVersion
-RELEASE_VERSION=`echo $RELEASE_CANDIDATE_VERSION | sed 's/_rc[0-9][0-9]*$//'`
+verifyTagDoesNotExist "$BUILD_RELEASE_VERSION"
 
-verifyTagDoesNotExist "v$RELEASE_VERSION"
-
-confimBeforeProceeding "   Do you wish to create release $RELEASE_VERSION from release candidate $RELEASE_CANDIDATE_VERSION (y/n) ?"
+confimBeforeProceeding "   Do you wish to create branch ""release"" $BUILD_RELEASE_VERSION(y/n) ?"
 
 # Create a POM version modified and tagged version on a temp branch then return to original branch
-TEMP_BRANCH="v$RELEASE_VERSION""_tmpBranch"
-checkout "v$RELEASE_CANDIDATE_VERSION"
+TEMP_BRANCH="$BUILD_RELEASE_VERSION""_tmpBranch"
 checkoutOnANewBranch $TEMP_BRANCH
-updatePomfileVersions $RELEASE_VERSION
-addAllModificationsAndCommitWithMessage "v"$RELEASE_VERSION
-tagAndPushTagToOrigin v$RELEASE_VERSION
+updatePomfileVersions $BUILD_RELEASE_VERSION
+addAllModificationsAndCommitWithMessage "v"$BUILD_RELEASE_VERSION
+tagAndPushTagToOrigin v$BUILD_RELEASE_VERSION
 checkout $ORIG_BRANCH
 deleteBranch $TEMP_BRANCH
-
-# Archive redundant release candidate tags
-archiveRedundantReleaseCandidateTags $RELEASE_VERSION
-
-# Update POM version to snapshot version after confirmation
-MINOR_RELEASE=`echo $RELEASE_VERSION|sed 's/.*\.//'`
-NEXT_SNAPSHOT_VERSION=`echo $RELEASE_VERSION|sed 's/[^.]*$//'`$(($MINOR_RELEASE + 1))-SNAPSHOT
-confimBeforeProceeding "   Do you wish to update the POM version to $NEXT_SNAPSHOT_VERSION on the $ORIG_BRANCH branch (y/n) ?"
-updatePomfileVersions $NEXT_SNAPSHOT_VERSION
-addAllModificationsAndCommitWithMessage "Updating poms for $NEXT_SNAPSHOT_VERSION development"
-git push -q --set-upstream origin $ORIG_BRANCH
 
 echo

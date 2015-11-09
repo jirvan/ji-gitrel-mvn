@@ -1,5 +1,5 @@
 #!/bin/bash
-#     ji-gitrel-mvn-1.0.2 - grel
+#     ji-gitrel-mvn-1.0.3 - grel
 #
 #     Copyright (c) 2014,2015 Jirvan Pty Ltd
 #     All rights reserved.
@@ -46,7 +46,7 @@ confimBeforeProceeding "   Do you wish to create release $RELEASE_VERSION from r
 TEMP_BRANCH="v$RELEASE_VERSION""_tmpBranch"
 checkout "v$RELEASE_CANDIDATE_VERSION"
 checkoutOnANewBranch $TEMP_BRANCH
-updatePomfileVersions $RELEASE_VERSION
+updateProjectAndModulePomfileVersions $RELEASE_VERSION
 addAllModificationsAndCommitWithMessage "v"$RELEASE_VERSION
 tagAndPushTagToOrigin v$RELEASE_VERSION
 checkout $ORIG_BRANCH
@@ -60,7 +60,7 @@ archiveRedundantReleaseCandidateTags $RELEASE_VERSION
 MINOR_RELEASE=`echo $RELEASE_VERSION|sed 's/.*\.//'`
 NEXT_SNAPSHOT_VERSION=`echo $RELEASE_VERSION|sed 's/[^.]*$//'`$(($MINOR_RELEASE + 1))-SNAPSHOT
 confimBeforeProceeding "   Do you wish to update the POM version to $NEXT_SNAPSHOT_VERSION on the $ORIG_BRANCH branch (y/n) ?"
-updatePomfileVersions $NEXT_SNAPSHOT_VERSION
+updateProjectAndModulePomfileVersions $NEXT_SNAPSHOT_VERSION
 addAllModificationsAndCommitWithMessage "Updating poms for $NEXT_SNAPSHOT_VERSION development"
 git push -q --set-upstream origin $ORIG_BRANCH
 

@@ -1,5 +1,5 @@
 #!/bin/bash
-#     ji-gitrel-mvn-1.0.2 - grelc
+#     ji-gitrel-mvn-1.0.3 - grelc
 #
 #     Copyright (c) 2014,2015 Jirvan Pty Ltd
 #     All rights reserved.
@@ -50,7 +50,7 @@ confimBeforeProceeding "  Do you wish to create release candidate v$RELEASE_CAND
 # Create a POM version modified and tagged version on a temp branch then return to original branch
 TEMP_BRANCH="v$RELEASE_CANDIDATE_VERSION""_tmpBranch"
 checkoutOnANewBranch $TEMP_BRANCH
-updatePomfileVersions $RELEASE_CANDIDATE_VERSION
+updateProjectAndModulePomfileVersions $RELEASE_CANDIDATE_VERSION
 addAllModificationsAndCommitWithMessage "v"$RELEASE_CANDIDATE_VERSION
 tagAndPushTagToOrigin v$RELEASE_CANDIDATE_VERSION
 checkout $ORIG_BRANCH

@@ -1,5 +1,5 @@
 #!/bin/bash
-#     ji-gitrel-mvn-1.0.2 - gbrel
+#     ji-gitrel-mvn-1.0.3 - gbrel
 #
 #     Copyright (c) 2014,2015 Jirvan Pty Ltd
 #     All rights reserved.
@@ -51,7 +51,7 @@ confimBeforeProceeding "   Do you wish to create branch ""release"" $BUILD_RELEA
 # Create a POM version modified and tagged version on a temp branch then return to original branch
 TEMP_BRANCH="$BUILD_RELEASE_VERSION""_tmpBranch"
 checkoutOnANewBranch $TEMP_BRANCH
-updatePomfileVersions $BUILD_RELEASE_VERSION
+updateProjectAndModulePomfileVersions $BUILD_RELEASE_VERSION
 addAllModificationsAndCommitWithMessage "v"$BUILD_RELEASE_VERSION
 tagAndPushTagToOrigin v$BUILD_RELEASE_VERSION
 checkout $ORIG_BRANCH

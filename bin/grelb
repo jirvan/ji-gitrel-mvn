@@ -1,5 +1,5 @@
 #!/bin/bash
-#     ji-gitrel-mvn-1.0.2 - grelb
+#     ji-gitrel-mvn-1.0.3 - grelb
 #
 #     Copyright (c) 2014,2015 Jirvan Pty Ltd
 #     All rights reserved.
@@ -128,6 +128,6 @@ done
 
 checkout "v$RELEASE_VERSION"
 checkoutOnANewBranch "$BRANCH_NAME"
-updatePomfileVersions "$BRANCH_VERSION"-SNAPSHOT
+updateProjectAndModulePomfileVersions "$BRANCH_VERSION"-SNAPSHOT
 addAllModificationsAndCommitWithMessage "Updating poms for ""$BRANCH_VERSION""-SNAPSHOT development"
 echo

@@ -1,4 +1,4 @@
-#     ji-gitrel-mvn-1.0.2 - gitrellib.sh
+#     ji-gitrel-mvn-1.0.3 - gitrellib.sh
 #
 #     Copyright (c) 2014,2015 Jirvan Pty Ltd
 #     All rights reserved.
@@ -288,6 +288,35 @@ function updatePomfileVersions {
     then
         exit 1
     fi
+
+}
+
+
+function updateProjectAndModulePomfileVersions {
+
+   echo Main Project
+    updatePomfileVersions $1
+
+    for i in `sed  '1,/^[[:space:]]*<modules>[[:space:]]*$/d' pom.xml \
+              | sed  '/^[[:space:]]*<\/modules>[[:space:]]*$/,$d' \
+              | grep '^[[:space:]]*<module>.*<\/module>[[:space:]]*$' \
+              | sed 's/^[[:space:]]*<module>//' \
+              | sed 's/<\/module>[[:space:]]*$//'`;
+    do
+        echo
+        printf "  Module %s\n" $i
+        pushd "$i" >/dev/null
+
+        echo "  - Setting  module POM file version to $1"
+        if ! mvn versions:set -q -DgenerateBackupPoms=false -DnewVersion=$1 >/dev/null
+        then
+            echo "    Call to versions:set failed - probably due to this module being a"
+            echo "    child project of the main project (in which case not a problem as it"
+            echo "    will have been updated automatically along with the main project)."
+        fi
+
+        popd >/dev/null
+    done
 
 }
 

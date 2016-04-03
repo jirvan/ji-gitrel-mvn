@@ -54,6 +54,7 @@ updateProjectAndModulePomfileVersions $RELEASE_CANDIDATE_VERSION
 addAllModificationsAndCommitWithMessage "v"$RELEASE_CANDIDATE_VERSION
 tagAndPushTagToOrigin v$RELEASE_CANDIDATE_VERSION
 checkout $ORIG_BRANCH
+tagAndPushTagToOrigin "v"$RELEASE_CANDIDATE_VERSION"_created"
 deleteBranch $TEMP_BRANCH
 
 echo

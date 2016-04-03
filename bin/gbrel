@@ -35,14 +35,7 @@ verifyHeadIsNotDetached
 
 # Extract release version etc and confirm before proceeding
 ORIG_BRANCH=`git branch| grep '^\* '|sed 's/\* //'`
-RELEASE_VERSION=`mvn blah|egrep '^\[INFO\] Building .+ [0-9]+\.[0-9]+\.[0-9]+-SNAPSHOT$'|sed 's/\[INFO\] Building .* //'|sed 's/-SNAPSHOT$//'`
-if [ "$ORIG_BRANCH" = "dev" ]
-then
-    EFFECTIVE_BUILD_NUMBER="_"`date +%Y-%m-%d_%H%M`
-else
-    EFFECTIVE_BUILD_NUMBER=-$ORIG_BRANCH"_"`date +%Y-%m-%d_%H%M`
-fi
-BUILD_RELEASE_VERSION=$RELEASE_VERSION-build$EFFECTIVE_BUILD_NUMBER
+BUILD_RELEASE_VERSION=$ORIG_BRANCH"_"`date +%Y-%m-%d_%H%M`
 
 verifyTagDoesNotExist "$BUILD_RELEASE_VERSION"
 
@@ -52,10 +45,10 @@ confimBeforeProceeding "   Do you wish to create branch ""release"" $BUILD_RELEA
 TEMP_BRANCH="$BUILD_RELEASE_VERSION""_tmpBranch"
 checkoutOnANewBranch $TEMP_BRANCH
 updateProjectAndModulePomfileVersions $BUILD_RELEASE_VERSION
-addAllModificationsAndCommitWithMessage "v"$BUILD_RELEASE_VERSION
-tagAndPushTagToOrigin v$BUILD_RELEASE_VERSION
+addAllModificationsAndCommitWithMessage $BUILD_RELEASE_VERSION
+tagAndPushTagToOrigin $BUILD_RELEASE_VERSION
 checkout $ORIG_BRANCH
-tagAndPushTagToOrigin "v$BUILD_RELEASE_VERSION"_created
+tagAndPushTagToOrigin "$BUILD_RELEASE_VERSION"_created
 deleteBranch $TEMP_BRANCH
 
 echo

@@ -522,3 +522,42 @@ function archiveRedundantReleaseCandidateTags {
     done
 
 }
+
+
+function archiveIfNecessaryAndRemoveRedundantReleaseCandidateTags {
+
+    local RELEASE_VERSION="$1"
+    local candidates=( $(git ls-remote --tags origin | egrep '.*refs/tags/v'$RELEASE_VERSION'_rc[0-9]+$'|sed 's,.*refs/tags/v,,') )
+
+    for i in `seq 0 $((${#candidates[@]} - 1))`;
+    do
+
+        local oldTag="v${candidates[$i]}"
+        local archiveTag="archive/v${candidates[$i]}"
+
+        if ! git ls-remote --tags origin|egrep '.*refs/tags/'$archiveTag'$' >/dev/null
+            then
+            echo "  - Creating tag $archiveTag and pushing to origin"
+            if ! git tag "$archiveTag" "$oldTag"
+            then
+                exit 1
+            fi
+            if ! git push -q origin "$archiveTag"
+            then
+                exit 1
+            fi
+        fi
+
+        echo "  - Deleting tag $oldTag locally and at origin"
+        if ! git tag -d $oldTag >/dev/null
+        then
+            exit 1
+        fi
+        if ! git push origin :"$oldTag" 2>/dev/null
+        then
+            exit 1
+        fi
+
+    done
+
+}
